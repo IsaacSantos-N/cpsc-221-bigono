@@ -23,32 +23,106 @@ public class IUSingleLinkedList<E> implements IndexedUnsortedList<E> {
 
 	@Override
 	public void addToFront(E element) {
-		// TODO 
-		
+		// Create node containing element
+		LinearNode<E> newNode = new LinearNode<>(element);
+
+		// Determine if list is empty
+		if (isEmpty()) {
+			front = newNode;
+			rear = newNode;
+		} else {
+			// If list contains elements, new node connects to old
+			// first node and update front to refrence new first node. 
+			newNode.setNext(front);
+			front = newNode;
+		}
+		count++;
+		modCount++;
 	}
 
 	@Override
 	public void addToRear(E element) {
-		// TODO 
-		
+		LinearNode<E> newNode = new LinearNode<>(element);
+
+		if (isEmpty()) {
+			front = newNode;
+			rear = newNode;
+		} else {
+			// If list contains elements, new node connects to old 
+			// rear node and update rear to refrence new last node.
+			rear.setNext(newNode);
+			rear = newNode;
+		}
+		count++;
+		modCount++;
 	}
 
 	@Override
 	public void add(E element) {
-		// TODO 
+		// Add element to rear using existing method
+		addToRear(element);
 		
 	}
 
 	@Override
 	public void addAfter(E element, E target) {
-		// TODO 
+		// Search front of list
+		LinearNode<E> current = front;
+		
+		// Check list until target is found
+		while (current != null && !current.getElement().equals(target)) {
+			current = current.getNext();
+		}
+
+		if (current == null) {
+			throw new NoSuchElementException();
+		}
+
+		LinearNode<E> newNode = new LinearNode<>(element);
+
+		// New node gains refrence to node after target
+		newNode.setNext(current.getNext());
+		current.setNext(newNode); // Target node connects new node
+
+		// If inserted after rear, update
+		if (current == rear) {
+			rear = newNode;
+		}
+
+		count++;
+		modCount++;
 		
 	}
 
 	@Override
 	public void add(int index, E element) {
-		// TODO 
-		
+		// Determine index is valid
+		if (index < 0 || index > count) {
+			throw new IndexOutOfBoundsException();
+		} 
+
+		if (index == 0) {
+			addToFront(element);
+		} else if (index == count) {
+			addToRear(element);
+		} else {
+			LinearNode<E> current = front;
+
+			// Stop at node before insert index
+			for (int i = 0; i < index - 1; i++) {
+				current = current.getNext();
+			}
+
+			LinearNode<E> newNode = new LinearNode<>(element);
+
+			// Refrence previous node to next node
+			newNode.setNext(current.getNext());
+			// Refrence previous node to new node
+			current.setNext(newNode);
+
+			count++;
+			modCount++;
+		}
 	}
 
 	@Override
@@ -90,20 +164,56 @@ public class IUSingleLinkedList<E> implements IndexedUnsortedList<E> {
 
 	@Override
 	public void set(int index, E element) {
-		// TODO 
-		
+		// Determine index within list
+		if (index < 0 || index >= count) {
+			throw new IndexOutOfBoundsException();
+		}
+
+		LinearNode<E> current = front;
+
+		// Find index
+		for (int i = 0; i < index; i++) {
+			current = current.getNext();
+		}
+
+		// Set new element 
+		current.setElement(element);
 	}
 
 	@Override
 	public E get(int index) {
-		// TODO 
-		return null;
+		// Determine index within list
+		if (index < 0 || index >= count) {
+			throw new IndexOutOfBoundsException();
+		}
+
+		LinearNode<E> current = front;
+
+		// Find index
+		for (int i = 0; i < index; i++) {
+			current = current.getNext();
+		}
+
+		// Returns element in index
+		return current.getElement();
 	}
 
 	@Override
 	public int indexOf(E element) {
-		// TODO 
-		return 0;
+		LinearNode<E> current = front;
+		int index = 0;
+
+		// Traverse each node
+		while (current != null) {
+			// Found element and returns index
+			if (current.getElement().equals(element)) {
+				return  index;
+			}
+			current = current.getNext();
+			index++;
+		}
+		// Element was not found
+		return -1;
 	}
 
 	@Override
@@ -118,8 +228,9 @@ public class IUSingleLinkedList<E> implements IndexedUnsortedList<E> {
 
 	@Override
 	public boolean contains(E target) {
-		// TODO 
-		return false;
+		// Return true if target exists in list
+		return indexOf(target) != -1;
+
 	}
 
 	@Override
@@ -134,8 +245,20 @@ public class IUSingleLinkedList<E> implements IndexedUnsortedList<E> {
 
 	@Override
 	public String toString() {
-		// TODO
-		return "";
+		String result = "[";
+
+		LinearNode<E> current = front;
+
+		while (current != null) {
+			result += current.getElement();
+
+			if (current.getNext() != null) {
+				result += ",";
+			}
+			current = current.getNext();
+		}
+		result += "]";
+		return result;
 	}
 
 	private E removeElement(LinearNode<E> previous, LinearNode<E> current) {
